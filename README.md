@@ -4,8 +4,6 @@ Go libraries mrapry
 
 #### Install
 ```shell
-$ git config --global url."git@repo.digitalisasi-project.com:".insteadOf "https://repo.digitalisasi-project.com/"
-$ export GOPRIVATE="repo.digitalisasi-project.com/digital-solusi-ketenagalistrikan"
 $ go get github.com/mrapry/go-lib
 ```
 
