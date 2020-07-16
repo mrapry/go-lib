@@ -1,10 +1,11 @@
 package golibshared
 
 import (
-	"github.com/labstack/echo"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
+
+	"github.com/labstack/echo"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSetEchoHTTPMock(t *testing.T) {
@@ -16,7 +17,7 @@ func TestSetEchoHTTPMock(t *testing.T) {
 }
 
 func TestCreateHttpRequestMock(t *testing.T) {
-	urlMock := "http://pln.test.com"
+	urlMock := "http://mrapry.test.com"
 	responseMock := map[string]string{"success": "true"}
 
 	testCases := map[string]struct {

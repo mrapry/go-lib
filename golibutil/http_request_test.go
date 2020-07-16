@@ -28,7 +28,7 @@ func TestRequestDo(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	// mock data
-	urlMock := "http://pln.tests"
+	urlMock := "http://mrapry.tests"
 	headerMock := map[string]string{"Content-Type": "application/json"}
 	successResponseMock := map[string]interface{}{"success": true, "message": "success", "code": http.StatusOK}
 	errorResponseMock := map[string]interface{}{"success": false, "message": "error", "code": http.StatusBadGateway}

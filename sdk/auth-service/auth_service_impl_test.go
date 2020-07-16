@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	urlMock  = "http://auth.pln.tests"
+	urlMock  = "http://auth.mrapry.tests"
 	passMock = gofakeit.Password(true, true, true, true, false, 10)
 )
 

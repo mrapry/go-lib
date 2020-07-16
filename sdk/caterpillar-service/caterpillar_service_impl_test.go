@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	urlMock = "http://caterpillar.pln.tests"
+	urlMock = "http://caterpillar.mrapry.tests"
 )
 
 func TestNewCaterpillarService(t *testing.T) {

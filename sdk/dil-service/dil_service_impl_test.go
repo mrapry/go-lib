@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	urlMock = "http://dil.pln.tests"
+	urlMock = "http://dil.mrapry.tests"
 )
 
 func TestNewDilService(t *testing.T) {
