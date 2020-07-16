@@ -5,7 +5,7 @@ package main
 
 import (
     // import go-lib from mrapry go-lib
-    "124.158.164.43/digital-solusi-ketenagalistrikan/scaffold/go-lib/tracer"
+    "github.com/mrapry/go-lib/tracer"
 )
 
 func main() {
@@ -20,7 +20,7 @@ package main
 
 import (
     // import go-lib from mrapry go-lib
-    "124.158.164.43/digital-solusi-ketenagalistrikan/scaffold/go-lib/tracer"
+    "github.com/mrapry/go-lib/tracer"
     "github.com/labstack/echo"
     "github.com/labstack/echo/middleware"
 )
