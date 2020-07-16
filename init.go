@@ -1,0 +1,5 @@
+package golib
+
+func init() {
+
+}
