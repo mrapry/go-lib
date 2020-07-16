@@ -8,6 +8,7 @@ import (
 // Dependency base
 type Dependency interface {
 	GetMiddleware() interfaces.Middleware
+	GetPostgresDatabase() interfaces.PostgreDatabase
 	GetBroker() interfaces.Broker
 	GetSQLDatabase() interfaces.SQLDatabase
 	GetMongoDatabase() interfaces.MongoDatabase
@@ -21,14 +22,15 @@ type Dependency interface {
 type Option func(*deps)
 
 type deps struct {
-	mw        interfaces.Middleware
-	broker    interfaces.Broker
-	sqlDB     interfaces.SQLDatabase
-	mongoDB   interfaces.MongoDatabase
-	redisPool interfaces.RedisPool
-	key       interfaces.RSAKey
-	validator interfaces.Validator
-	sdk       *sdk.SDK
+	mw         interfaces.Middleware
+	broker     interfaces.Broker
+	sqlDB      interfaces.SQLDatabase
+	postgresDB interfaces.PostgreDatabase
+	mongoDB    interfaces.MongoDatabase
+	redisPool  interfaces.RedisPool
+	key        interfaces.RSAKey
+	validator  interfaces.Validator
+	sdk        *sdk.SDK
 }
 
 // SetMiddleware option func
@@ -49,6 +51,13 @@ func SetBroker(broker interfaces.Broker) Option {
 func SetSQLDatabase(db interfaces.SQLDatabase) Option {
 	return func(d *deps) {
 		d.sqlDB = db
+	}
+}
+
+// SetPostgresDatabase option func
+func SetPostgresDatabase(db interfaces.PostgreDatabase) Option {
+	return func(d *deps) {
+		d.postgresDB = db
 	}
 }
 
@@ -121,4 +130,7 @@ func (d *deps) GetValidator() interfaces.Validator {
 }
 func (d *deps) GetSDK() *sdk.SDK {
 	return d.sdk
+}
+func (d *deps) GetPostgresDatabase() interfaces.PostgreDatabase {
+	return d.postgresDB
 }
