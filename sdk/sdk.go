@@ -10,9 +10,9 @@ import (
 type Option func(*SDK)
 
 // SetAuthService option func
-func SetAuthService(authService auth.ServiceAuth) Option {
+func SetAuthService(authService *auth.ServiceAuth) Option {
 	return func(s *SDK) {
-		s.AuthService = authService
+		s.AuthService = *authService
 	}
 }
 
