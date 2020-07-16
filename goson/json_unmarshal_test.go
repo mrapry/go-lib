@@ -39,7 +39,7 @@ func TestUnmarshal(t *testing.T) {
 	t.Run("Testcase #1: Testing Unmarshal with root is JSON Object", func(t *testing.T) {
 		data := []byte(`{
 				"id": "01",
-				"name": "agungdp",
+				"name": "matius",
 				"mustFloat": "2.23423",
 				"mustInt": 2.23423,
 				"uint": 11,
