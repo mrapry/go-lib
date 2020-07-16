@@ -37,12 +37,16 @@ MONGODB_DATABASE_NAME=[string]
 # optional if using sql database
 SQL_DRIVER_NAME=[string]
 SQL_DB_READ_HOST=[string]
+SQL_DB_READ_PORT=[int]
 SQL_DB_READ_USER=[string]
 SQL_DB_READ_PASSWORD=[string]
 SQL_DB_WRITE_HOST=[string]
+SQL_DB_WRITE_PORT=[int]
 SQL_DB_WRITE_USER=[string]
 SQL_DB_WRITE_PASSWORD=[string]
 SQL_DATABASE_NAME=[string]
+SQL_SSL_MODE=[disable|enable]
+
 
 # optional if using redis
 REDIS_READ_HOST=[string]
