@@ -4,3 +4,4 @@ go-lib
 coverage.txt
 bin
 middleware
+.idea/

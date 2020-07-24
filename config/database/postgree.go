@@ -53,7 +53,7 @@ func InitPosgreDB(ctx context.Context) interfaces.PostgreDatabase {
 			" user="+os.Getenv("SQL_DB_READ_USER")+
 			" dbname="+dbName+
 			" password="+os.Getenv("DB_READ_PASS")+
-			" sslmode="+os.Getenv("SQL_SSL_MODE"))
+			" sslmode=disable")
 	if err != nil {
 		panic(fmt.Errorf("postgree: %v, conn: %s", err, hostRead))
 	}
@@ -66,7 +66,7 @@ func InitPosgreDB(ctx context.Context) interfaces.PostgreDatabase {
 			" user="+os.Getenv("SQL_DB_WRITE_USER")+
 			" dbname="+dbName+
 			" password="+os.Getenv("DB_WRITE_PASS")+
-			" sslmode="+os.Getenv("SQL_SSL_MODE"))
+			" sslmode=disable")
 	if err != nil {
 		panic(fmt.Errorf("postgree: %v, conn: %s", err, hostWrite))
 	}
