@@ -16,7 +16,7 @@ require (
 	github.com/google/go-querystring v1.0.0
 	github.com/graph-gophers/graphql-go v0.0.0-20200622220639-c1d9693c95a6
 	github.com/jarcoal/httpmock v1.0.5
-	github.com/jinzhu/gorm v1.9.14
+	github.com/jinzhu/gorm v1.9.11
 	github.com/joho/godotenv v1.3.0
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/gommon v0.3.0 // indirect
