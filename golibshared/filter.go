@@ -19,10 +19,10 @@ type Filter struct {
 	Page    int32  `json:"page" default:"1"`
 	Offset  int32  `json:"-"`
 	Search  string `json:"search,omitempty"`
-	OrderBy string `json:"orderBy,omitempty"`
+	OrderBy string `json:"order_by,omitempty"`
 	Sort    string `json:"sort,omitempty" default:"desc" lower:"true"`
 	SortInt int    `json:"-"`
-	ShowAll bool   `json:"showAll" default:"false"`
+	ShowAll bool   `json:"show_all" default:"false"`
 }
 
 // SetSort method
