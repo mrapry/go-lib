@@ -134,3 +134,4 @@ func (d *deps) GetSDK() *sdk.SDK {
 func (d *deps) GetPostgresDatabase() interfaces.PostgreDatabase {
 	return d.postgresDB
 }
+
