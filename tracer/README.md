@@ -21,7 +21,7 @@ package main
 import (
     // import go-lib from mrapry go-lib
     "github.com/mrapry/go-lib/tracer"
-    "github.com/labstack/echo/v4"
+    "github.com/labstack/echo"
     "github.com/labstack/echo/middleware"
 )
 

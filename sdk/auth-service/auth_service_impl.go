@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo"
 	"github.com/mitchellh/mapstructure"
 	"github.com/mrapry/go-lib/golibshared"
 	"github.com/mrapry/go-lib/golibutil"

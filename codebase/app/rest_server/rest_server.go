@@ -5,15 +5,12 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"os"
 	"sort"
-	"strconv"
 	"strings"
 	"time"
 
-	"github.com/labstack/echo/v4"
-	echoMidd "github.com/labstack/echo/v4/middleware"
-	echoSwagger "github.com/swaggo/echo-swagger"
+	"github.com/labstack/echo"
+	echoMidd "github.com/labstack/echo/middleware"
 
 	graphqlserver "github.com/mrapry/go-lib/codebase/app/graphql_server"
 	"github.com/mrapry/go-lib/codebase/factory"
@@ -56,18 +53,6 @@ func (h *restServer) Serve() {
 			"timestamp": time.Now().Format(time.RFC3339Nano),
 		})
 	})
-
-	useSWAGGER, ok := os.LookupEnv("USE_SWAGGER")
-	if !ok {
-		panic("missing USE_SWAGGER environment")
-	}
-	statusSwagger, _ := strconv.ParseBool(useSWAGGER)
-
-	if statusSwagger {
-		fs := http.FileServer(http.Dir("/docs"))
-		h.serverEngine.GET("/*", echo.WrapHandler(http.StripPrefix("/", fs)))
-		h.serverEngine.GET("/swagger/*", echoSwagger.EchoWrapHandler(echoSwagger.URL(os.Getenv("SWAGGER_ADDRESS_DOC"))))
-	}
 
 	restRootPath := h.serverEngine.Group("",
 		tracer.EchoRestTracerMiddleware, echoMidd.Logger(),

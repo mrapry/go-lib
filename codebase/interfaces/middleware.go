@@ -3,7 +3,7 @@ package interfaces
 import (
 	"context"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo"
 	"github.com/mrapry/go-lib/golibshared"
 	"google.golang.org/grpc"
 )

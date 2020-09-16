@@ -10,7 +10,7 @@ import (
 	"github.com/mrapry/go-lib/golibshared"
 	"github.com/mrapry/go-lib/wrapper"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo"
 )
 
 const (

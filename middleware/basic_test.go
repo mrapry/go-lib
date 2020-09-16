@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/brianvoe/gofakeit/v5"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo"
 	"github.com/mrapry/go-lib/golibshared"
 
 	"github.com/stretchr/testify/assert"

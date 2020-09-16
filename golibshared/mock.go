@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/jarcoal/httpmock"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo"
 )
 
 const (
