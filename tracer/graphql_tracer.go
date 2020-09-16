@@ -6,12 +6,14 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
-	gqlerrors "github.com/graph-gophers/graphql-go/errors"
-	"github.com/graph-gophers/graphql-go/introspection"
-	"github.com/graph-gophers/graphql-go/trace"
+	gqlerrors "github.com/golangid/graphql-go/errors"
+	"github.com/golangid/graphql-go/introspection"
+	"github.com/golangid/graphql-go/trace"
 	"github.com/mrapry/go-lib/golibhelper"
+	"github.com/mrapry/go-lib/logger"
 )
 
 // GraphQLTracer struct
@@ -19,7 +21,7 @@ type GraphQLTracer struct{}
 
 // TraceQuery method
 func (GraphQLTracer) TraceQuery(ctx context.Context, queryString string, operationName string, variables map[string]interface{}, varTypes map[string]*introspection.Type) (context.Context, trace.TraceQueryFinishFunc) {
-	trace := StartTrace(ctx, fmt.Sprintf("GraphQL-Root:%s", operationName))
+	trace := StartTrace(ctx, strings.TrimSuffix(fmt.Sprintf("GraphQL-Root:%s", operationName), ":"))
 
 	tags := trace.Tags()
 	tags["graphql.query"] = queryString
@@ -30,7 +32,10 @@ func (GraphQLTracer) TraceQuery(ctx context.Context, queryString string, operati
 
 	return trace.Context(), func(errs []*gqlerrors.QueryError) {
 		defer trace.Finish()
+		logger.LogGreen(GetTraceURL(trace.Context()))
+
 		if len(errs) > 0 {
+			tags["errors"] = errs
 			msg := errs[0].Error()
 			if len(errs) > 1 {
 				msg += fmt.Sprintf(" (and %d more errors)", len(errs)-1)
@@ -45,7 +50,7 @@ func (GraphQLTracer) TraceField(ctx context.Context, label, typeName, fieldName 
 	start := time.Now()
 	return ctx, func(err *gqlerrors.QueryError) {
 		end := time.Now()
-		if !trivial && typeName != "Query" {
+		if !trivial && !golibhelper.StringInSlice(typeName, []string{"Query", "Mutation", "Subscription"}) {
 			statusColor := golibhelper.Green
 			status := " OK  "
 			if err != nil {

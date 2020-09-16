@@ -2,36 +2,37 @@ package broker
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/mrapry/go-lib/codebase/interfaces"
-	"github.com/mrapry/go-lib/golibhelper"
+	"github.com/mrapry/go-lib/logger"
 	"github.com/mrapry/go-lib/publisher"
 
 	"github.com/Shopify/sarama"
 )
 
 type kafkaBroker struct {
-	cfg *sarama.Config
-	pub interfaces.Publisher
+	client sarama.Client
+	pub    interfaces.Publisher
 }
 
-func (b *kafkaBroker) GetConfig() *sarama.Config {
-	return b.cfg
+func (b *kafkaBroker) GetClient() sarama.Client {
+	return b.client
 }
 func (b *kafkaBroker) Publisher() interfaces.Publisher {
 	return b.pub
 }
 func (b *kafkaBroker) Disconnect(ctx context.Context) error {
-	return nil
+	deferFunc := logger.LogWithDefer("kafka: disconnect...")
+	defer deferFunc()
+
+	return b.client.Close()
 }
 
 // InitKafkaBroker init kafka broker configuration
 func InitKafkaBroker(brokers []string, clientID string) interfaces.Broker {
-
-	fmt.Printf("%s Load Kafka configuration... ", time.Now().Format(golibhelper.TimeFormatLogger))
-	defer fmt.Println("\x1b[32;1mSUCCESS\x1b[0m")
+	deferFunc := logger.LogWithDefer("Load Kafka configuration... ")
+	defer deferFunc()
 
 	kafkaConfig := sarama.NewConfig()
 	kafkaConfig.Version, _ = sarama.ParseKafkaVersion("2.1.1")
@@ -46,8 +47,13 @@ func InitKafkaBroker(brokers []string, clientID string) interfaces.Broker {
 	// Consumer config
 	kafkaConfig.Consumer.Offsets.Initial = sarama.OffsetOldest
 
+	saramaClient, err := sarama.NewClient(brokers, kafkaConfig)
+	if err != nil {
+		panic(err)
+	}
+
 	return &kafkaBroker{
-		cfg: kafkaConfig,
-		pub: publisher.NewKafkaPublisher(brokers, kafkaConfig),
+		client: saramaClient,
+		pub:    publisher.NewKafkaPublisher(saramaClient),
 	}
 }

@@ -9,7 +9,7 @@ import (
 type ModuleFactory interface {
 	RestHandler() interfaces.EchoRestHandler
 	GRPCHandler() interfaces.GRPCHandler
-	GraphQLHandler() (name string, resolver interface{})
+	GraphQLHandler() interfaces.GraphQLHandler
 	WorkerHandler(workerType types.Worker) interfaces.WorkerHandler
 	Name() types.Module
 }

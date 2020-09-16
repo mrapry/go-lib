@@ -2,9 +2,9 @@ package interfaces
 
 import (
 	"database/sql"
+	"github.com/jinzhu/gorm"
 
 	"github.com/gomodule/redigo/redis"
-	"github.com/jinzhu/gorm"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -22,16 +22,16 @@ type MongoDatabase interface {
 	Closer
 }
 
-// RedisPool abstraction
-type RedisPool interface {
-	ReadPool() *redis.Pool
-	WritePool() *redis.Pool
-	Closer
-}
-
 // PostgreDatabase abstraction
 type PostgreDatabase interface {
 	ReadDB() *gorm.DB
 	WriteDB() *gorm.DB
+	Closer
+}
+
+// RedisPool abstraction
+type RedisPool interface {
+	ReadPool() *redis.Pool
+	WritePool() *redis.Pool
 	Closer
 }

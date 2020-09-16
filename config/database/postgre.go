@@ -3,12 +3,12 @@ package database
 import (
 	"context"
 	"fmt"
-	"os"
-
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/mrapry/go-lib/codebase/interfaces"
 	"github.com/mrapry/go-lib/logger"
+	"os"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"strconv"
 )
 
 type postgreInstance struct {
@@ -72,6 +72,10 @@ func InitPosgreDB(ctx context.Context) interfaces.PostgreDatabase {
 		panic(fmt.Errorf("postgree: %v, conn: %s", err, hostWrite))
 	}
 	dbInstance.write = write
+
+	isDebugMode, _ := strconv.ParseBool(os.Getenv("DEBUG_MODE"))
+	read.LogMode(isDebugMode)
+	write.LogMode(isDebugMode)
 
 	return dbInstance
 }

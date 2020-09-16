@@ -23,15 +23,14 @@ type Env struct {
 	UseGraphQL bool
 	// UseGRPC env
 	UseGRPC bool
+	// Use Jeager Tracing
+	UseJeagerTracing bool
 	// UseKafkaConsumer env
 	UseKafkaConsumer bool
 	// UseCronScheduler env
 	UseCronScheduler bool
 	// UseRedisSubscriber env
 	UseRedisSubscriber bool
-	//UseAutoMigration env
-	UseAutoMigration bool
-
 
 	// GraphQLSchemaDir env
 	GraphQLSchemaDir string
@@ -93,6 +92,12 @@ func loadBaseEnv(targetEnv *Env) {
 	}
 	env.UseGraphQL, _ = strconv.ParseBool(useGraphQL)
 
+	useJeager, ok := os.LookupEnv("USE_JEAGER_TRACING")
+	if !ok {
+		panic("missing useJeager environment")
+	}
+	env.UseJeagerTracing, _ = strconv.ParseBool(useJeager)
+
 	useGRPC, ok := os.LookupEnv("USE_GRPC")
 	if !ok {
 		panic("missing USE_GRPC environment")
@@ -105,11 +110,6 @@ func loadBaseEnv(targetEnv *Env) {
 	}
 	env.UseKafkaConsumer, _ = strconv.ParseBool(useKafkaConsumer)
 
-	useAutoMigration, ok := os.LookupEnv("USE_AUTOMIGRATION_SQL")
-	if !ok {
-		panic("missing USE_CRON_SCHEDULER environment")
-	}
-	env.UseAutoMigration, _ = strconv.ParseBool(useAutoMigration)
 	useCronScheduler, ok := os.LookupEnv("USE_CRON_SCHEDULER")
 	if !ok {
 		panic("missing USE_CRON_SCHEDULER environment")

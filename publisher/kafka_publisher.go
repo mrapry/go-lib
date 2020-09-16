@@ -6,10 +6,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/mrapry/go-lib/tracer"
-
 	"github.com/Shopify/sarama"
 	"github.com/mrapry/go-lib/golibhelper"
+	"github.com/mrapry/go-lib/tracer"
 )
 
 // KafkaPublisher kafka
@@ -18,14 +17,9 @@ type KafkaPublisher struct {
 }
 
 // NewKafkaPublisher constructor
-func NewKafkaPublisher(brokers []string, cfg *sarama.Config) *KafkaPublisher {
+func NewKafkaPublisher(client sarama.Client) *KafkaPublisher {
 
-	if len(brokers) == 0 || (len(brokers) == 1 && brokers[0] == "") {
-		fmt.Printf(golibhelper.StringYellow("(Kafka publisher: warning, missing kafka broker for publish message. Should be panicked when using kafka publisher.) "))
-		return nil
-	}
-
-	producer, err := sarama.NewSyncProducer(brokers, cfg)
+	producer, err := sarama.NewSyncProducerFromClient(client)
 	if err != nil {
 		fmt.Printf(golibhelper.StringYellow("(Kafka publisher: warning, %v. Should be panicked when using kafka publisher.) "), err)
 		return nil
@@ -49,21 +43,22 @@ func (p *KafkaPublisher) PublishMessage(ctx context.Context, topic, key string, 
 		payload, _ = json.Marshal(data)
 	}
 
-	tracer.WithTraceFunc(ctx, opName, func(c context.Context, tag map[string]interface{}) {
-		defer func() {
-			// set tracer tag
-			tag["topic"] = topic
-			tag["key"] = key
-			tag["message"] = string(payload)
+	tracer.WithTraceFunc(ctx, opName, func(ctx context.Context, tag map[string]interface{}) {
+		// set tracer tag
+		tag["topic"] = topic
+		tag["key"] = key
+		tag["message"] = string(payload)
 
-			msg := &sarama.ProducerMessage{
-				Topic:     topic,
-				Key:       sarama.ByteEncoder([]byte(key)),
-				Value:     sarama.ByteEncoder(payload),
-				Timestamp: time.Now(),
-			}
-			_, _, err = p.producer.SendMessage(msg)
-		}()
+		msg := &sarama.ProducerMessage{
+			Topic:     topic,
+			Key:       sarama.ByteEncoder([]byte(key)),
+			Value:     sarama.ByteEncoder(payload),
+			Timestamp: time.Now(),
+		}
+		_, _, err = p.producer.SendMessage(msg)
+		if err != nil {
+			tracer.SetError(ctx, err)
+		}
 	})
 
 	return

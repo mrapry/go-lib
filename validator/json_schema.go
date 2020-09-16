@@ -8,10 +8,11 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 
-	"github.com/mrapry/go-lib/golibhelper"
 	"github.com/xeipuuv/gojsonschema"
+	"github.com/mrapry/go-lib/golibhelper"
 )
 
 var notShowErrorListType = map[string]bool{
@@ -20,9 +21,20 @@ var notShowErrorListType = map[string]bool{
 
 var inMemStorage = map[string]*gojsonschema.Schema{}
 
+func checkOSRuntime(schema string) string {
+	if  runtime.GOOS == "windows" {
+		result := strings.ReplaceAll(schema, "/","\\")
+		return result
+	}
+
+	return schema
+}
+
+
 // loadJSONSchemaLocalFiles all json schema from given path
 func loadJSONSchemaLocalFiles(path string) error {
 
+	path = checkOSRuntime(path)
 	return filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -68,6 +80,7 @@ func NewJSONSchemaValidator(schemaRootPath string) *JSONSchemaValidator {
 }
 
 func (v *JSONSchemaValidator) getSchema(schemaID string) (schema *gojsonschema.Schema, err error) {
+	schemaID = checkOSRuntime(schemaID)
 	s, ok := inMemStorage[schemaID]
 	if !ok {
 		return nil, fmt.Errorf("schema '%s' not found", schemaID)

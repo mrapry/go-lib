@@ -1,11 +1,12 @@
 package golibshared
 
 import (
-	"github.com/jarcoal/httpmock"
-	"github.com/labstack/echo"
 	"net/http"
 	"net/http/httptest"
 	"strings"
+
+	"github.com/jarcoal/httpmock"
+	"github.com/labstack/echo/v4"
 )
 
 const (

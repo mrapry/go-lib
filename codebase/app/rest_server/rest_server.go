@@ -5,12 +5,15 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
-	"github.com/labstack/echo"
-	echoMidd "github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/v4"
+	echoMidd "github.com/labstack/echo/v4/middleware"
+	echoSwagger "github.com/swaggo/echo-swagger"
 
 	graphqlserver "github.com/mrapry/go-lib/codebase/app/graphql_server"
 	"github.com/mrapry/go-lib/codebase/factory"
@@ -45,8 +48,7 @@ func NewServer(service factory.ServiceFactory) factory.AppServerFactory {
 func (h *restServer) Serve() {
 
 	h.serverEngine.HTTPErrorHandler = wrapper.CustomHTTPErrorHandler
-	h.serverEngine.Use(echo.WrapMiddleware(tracer.Middleware))
-	h.serverEngine.Use(echoMidd.Logger(), echoMidd.CORS())
+	h.serverEngine.Use(echoMidd.Recover(), echoMidd.CORS())
 
 	h.serverEngine.GET("/", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]string{
@@ -55,16 +57,31 @@ func (h *restServer) Serve() {
 		})
 	})
 
-	rootPath := h.serverEngine.Group("")
+	useSWAGGER, ok := os.LookupEnv("USE_SWAGGER")
+	if !ok {
+		panic("missing USE_SWAGGER environment")
+	}
+	statusSwagger, _ := strconv.ParseBool(useSWAGGER)
+
+	if statusSwagger {
+		fs := http.FileServer(http.Dir("/docs"))
+		h.serverEngine.GET("/*", echo.WrapHandler(http.StripPrefix("/", fs)))
+		h.serverEngine.GET("/swagger/*", echoSwagger.EchoWrapHandler(echoSwagger.URL(os.Getenv("SWAGGER_ADDRESS_DOC"))))
+	}
+
+	restRootPath := h.serverEngine.Group("",
+		tracer.EchoRestTracerMiddleware, echoMidd.Logger(),
+	)
 	for _, m := range h.service.GetModules() {
 		if h := m.RestHandler(); h != nil {
-			h.Mount(rootPath)
+			h.Mount(restRootPath)
 		}
 	}
 
 	if h.graphqlHandler != nil {
-		h.serverEngine.POST("/graphql", echo.WrapHandler(http.HandlerFunc(h.graphqlHandler.ServeGraphQL)))
+		h.serverEngine.POST("/graphql", echo.WrapHandler(h.graphqlHandler.ServeGraphQL()))
 		h.serverEngine.GET("/graphql/playground", echo.WrapHandler(http.HandlerFunc(h.graphqlHandler.ServePlayground)))
+		h.serverEngine.GET("/graphql/voyager", echo.WrapHandler(http.HandlerFunc(h.graphqlHandler.ServeVoyager)))
 	}
 
 	var routes strings.Builder

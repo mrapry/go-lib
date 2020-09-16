@@ -10,12 +10,12 @@ import (
 
 	"github.com/google/go-querystring/query"
 	"github.com/jarcoal/httpmock"
-	"github.com/mrapry/go-lib/golibshared"
 	"github.com/stretchr/testify/assert"
+	"github.com/mrapry/go-lib/golibshared"
 )
 
 var (
-	urlMock  = "http://auth.mrapry.tests"
+	urlMock  = "http://auth.mrpary.tests"
 	passMock = gofakeit.Password(true, true, true, true, false, 10)
 )
 
@@ -65,7 +65,7 @@ func TestAuthServiceImplGenerateToken(t *testing.T) {
 
 	for name, test := range testCases {
 		t.Run(name, func(t *testing.T) {
-			mockUrl := fmt.Sprintf("%s/api/auth/create-token", urlMock)
+			mockUrl := fmt.Sprintf("%s/v1/token/generate", urlMock)
 
 			if test.wantMock {
 				golibshared.CreateHttpRequestMock(http.MethodPost, mockUrl, test.status, test.response)
@@ -118,7 +118,7 @@ func TestAuthServiceImplValidateToken(t *testing.T) {
 
 	for name, test := range testCases {
 		t.Run(name, func(t *testing.T) {
-			mockUrl := fmt.Sprintf("%s/api/auth/validate", urlMock)
+			mockUrl := fmt.Sprintf("%s/v1/token/validate", urlMock)
 
 			if test.wantMock {
 				golibshared.CreateHttpRequestMock(http.MethodPost, mockUrl, test.status, test.response)

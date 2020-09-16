@@ -1,5 +1,7 @@
 package validator
 
+import "github.com/mrapry/go-lib/config"
+
 // Validator instance
 type Validator struct {
 	*JSONSchemaValidator
@@ -7,9 +9,9 @@ type Validator struct {
 }
 
 // NewValidator instance
-func NewValidator(jsonSchemaRootPath string) *Validator {
+func NewValidator() *Validator {
 	return &Validator{
-		JSONSchemaValidator: NewJSONSchemaValidator(jsonSchemaRootPath),
+		JSONSchemaValidator: NewJSONSchemaValidator(config.BaseEnv().JSONSchemaDir),
 		StructValidator:     NewStructValidator(),
 	}
 }

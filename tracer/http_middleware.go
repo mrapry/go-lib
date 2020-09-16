@@ -4,16 +4,32 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 
+	"github.com/labstack/echo/v4"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
+	"github.com/mrapry/go-lib/logger"
 )
 
-// Middleware for wrap from http inbound (request from client)
-func Middleware(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+type httpResponseWriter struct {
+	io.Writer
+	http.ResponseWriter
+}
+
+func (w *httpResponseWriter) WriteHeader(code int) {
+	w.ResponseWriter.WriteHeader(code)
+}
+func (w *httpResponseWriter) Write(b []byte) (int, error) {
+	return w.Writer.Write(b)
+}
+
+// EchoRestTracerMiddleware for wrap from http inbound (request from client)
+func EchoRestTracerMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		req := c.Request()
 		tracer := opentracing.GlobalTracer()
 		operationName := fmt.Sprintf("%s %s%s", req.Method, req.Host, req.URL.Path)
 
@@ -29,7 +45,11 @@ func Middleware(h http.Handler) http.Handler {
 		}
 
 		body, _ := ioutil.ReadAll(req.Body)
-		span.SetTag("body", string(body))
+		if len(body) < maxPacketSize { // limit request body size to 65000 bytes (if higher tracer cannot show root span)
+			span.SetTag("request.body", string(body))
+		} else {
+			span.SetTag("request.body.size", len(body))
+		}
 		req.Body = ioutil.NopCloser(bytes.NewBuffer(body)) // reuse body
 
 		span.SetTag("http.headers", req.Header)
@@ -41,8 +61,27 @@ func Middleware(h http.Handler) http.Handler {
 		defer func() {
 			span.LogEvent("complete_handling_request")
 			span.Finish()
+			logger.LogGreen(GetTraceURL(ctx))
 		}()
 
-		h.ServeHTTP(w, req.WithContext(ctx))
-	})
+		resBody := new(bytes.Buffer)
+		mw := io.MultiWriter(c.Response().Writer, resBody)
+		writer := &httpResponseWriter{Writer: mw, ResponseWriter: c.Response().Writer}
+		c.Response().Writer = writer
+		c.SetRequest(req.WithContext(ctx))
+
+		err := next(c)
+		statusCode := c.Response().Status
+		ext.HTTPStatusCode.Set(span, uint16(statusCode))
+		if statusCode >= http.StatusBadRequest {
+			ext.Error.Set(span, true)
+		}
+
+		if resBody.Len() < maxPacketSize { // limit response body size to 65000 bytes (if higher tracer cannot show root span)
+			span.SetTag("response.body", resBody.String())
+		} else {
+			span.SetTag("response.body.size", resBody.Len())
+		}
+		return err
+	}
 }

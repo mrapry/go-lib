@@ -3,7 +3,7 @@ package interfaces
 import (
 	"context"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/mrapry/go-lib/golibshared"
 	"google.golang.org/grpc"
 )
@@ -22,7 +22,7 @@ type Middleware interface {
 type HTTPMiddleware interface {
 	HTTPBasicAuth(showAlert bool) echo.MiddlewareFunc
 	HTTPBearerAuth() echo.MiddlewareFunc
-	HttpMultipleAuth() echo.MiddlewareFunc
+	HTTPMultipleAuth() echo.MiddlewareFunc
 }
 
 // GRPCMiddleware interface, common middleware for grpc handler

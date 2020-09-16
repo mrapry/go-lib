@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"runtime/debug"
 	"strconv"
 	"strings"
@@ -130,6 +131,10 @@ func toString(v interface{}) (s string) {
 		b, _ := json.Marshal(val)
 		s = string(b)
 	}
+
+	if len(s) >= maxPacketSize {
+		s = fmt.Sprintf("overflow, size is: %d, max: %d", len(s), maxPacketSize)
+	}
 	return
 }
 
@@ -159,4 +164,14 @@ func SetError(ctx context.Context, err error) {
 	ext.Error.Set(span, true)
 	span.SetTag("error.message", err.Error())
 	span.SetTag("stacktrace", string(debug.Stack()))
+}
+
+// GetTraceURL log trace url
+func GetTraceURL(ctx context.Context) (u string) {
+	defer func() { recover() }()
+	urlAgent, err := url.Parse("//" + agent)
+	if err == nil {
+		u = fmt.Sprintf("> tracing_url: %s:16686/trace/%s", urlAgent.Hostname(), GetTraceID(ctx))
+	}
+	return
 }

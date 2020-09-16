@@ -38,7 +38,9 @@ func New(service factory.ServiceFactory) *App {
 		serviceName = fmt.Sprintf("%s-%s", serviceName, strings.ToLower(config.BaseEnv().Environment))
 	}
 	// init tracer
-	tracer.InitOpenTracing(config.BaseEnv().JaegerTracingHost, serviceName)
+	if config.BaseEnv().UseJeagerTracing{
+		tracer.InitOpenTracing(config.BaseEnv().JaegerTracingHost, serviceName)
+	}
 	// init logger
 	logger.InitZap()
 
@@ -110,5 +112,8 @@ func (a *App) shutdown(forceShutdown chan os.Signal) {
 	case <-forceShutdown:
 		fmt.Println("\x1b[31;1mForce shutdown server & worker\x1b[0m")
 		cancel()
+	case <-ctx.Done():
+		fmt.Println("\x1b[31;1mContext timeout\x1b[0m")
+		return
 	}
 }

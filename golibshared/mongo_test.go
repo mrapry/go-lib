@@ -1,11 +1,12 @@
 package golibshared
 
 import (
+	"testing"
+
 	"github.com/Kamva/mgm/v3/operator"
 	"github.com/brianvoe/gofakeit/v5"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
-	"testing"
 )
 
 func TestToBSON(t *testing.T) {
@@ -18,16 +19,29 @@ func TestToBSON(t *testing.T) {
 		"Test #1 positive to bson": {
 			structure: struct {
 				Name string `bson:"name"`
+				Age  int    `bson:"age"`
 			}{
 				Name: nameMock,
+				Age:  20,
 			},
-			expected: bson.M{operator.And: []bson.M{bson.M{"name": nameMock}}},
+			expected: bson.M{operator.And: []bson.M{{"name": nameMock}, {"age": 20}}},
 		},
 		"Test #2 negative invalid tag to bson": {
 			structure: struct {
 				Name string `bson:"-"`
+				Age  int    `bson:"-"`
 			}{
 				Name: nameMock,
+			},
+			expected: bson.M{operator.And: []bson.M{}},
+		},
+		"Test #3 positive with zero value": {
+			structure: struct {
+				Name string `bson:"name"`
+				Age  int    `bson:"age"`
+			}{
+				Name: "",
+				Age:  0,
 			},
 			expected: bson.M{operator.And: []bson.M{}},
 		},

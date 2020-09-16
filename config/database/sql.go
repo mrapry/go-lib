@@ -5,10 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
-	"time"
 
 	"github.com/mrapry/go-lib/codebase/interfaces"
-	"github.com/mrapry/go-lib/golibhelper"
 	"github.com/mrapry/go-lib/logger"
 )
 
@@ -23,14 +21,9 @@ func (s *sqlInstance) WriteDB() *sql.DB {
 	return s.write
 }
 func (s *sqlInstance) Disconnect(ctx context.Context) (err error) {
-	fmt.Printf("%s sql: disconnect... ", time.Now().Format(golibhelper.TimeFormatLogger))
-	defer func() {
-		if err != nil {
-			fmt.Println("\x1b[31;1mERROR\x1b[0m")
-		} else {
-			fmt.Println("\x1b[32;1mSUCCESS\x1b[0m")
-		}
-	}()
+	deferFunc := logger.LogWithDefer("sql: disconnect...")
+	defer deferFunc()
+
 	if err := s.read.Close(); err != nil {
 		return err
 	}

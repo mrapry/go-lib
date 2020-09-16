@@ -7,7 +7,12 @@ import (
 
 	opentracing "github.com/opentracing/opentracing-go"
 	config "github.com/uber/jaeger-client-go/config"
+	"github.com/mrapry/go-lib/golibhelper"
 )
+
+const maxPacketSize = int(65000 * golibhelper.Byte)
+
+var agent string
 
 // InitOpenTracing with agent and service name
 func InitOpenTracing(agentHost, serviceName string) error {
@@ -29,5 +34,6 @@ func InitOpenTracing(agentHost, serviceName string) error {
 		return err
 	}
 	opentracing.SetGlobalTracer(tracer)
+	agent = agentHost
 	return nil
 }

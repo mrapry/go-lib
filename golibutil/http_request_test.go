@@ -3,13 +3,12 @@ package golibutil
 import (
 	"context"
 	"encoding/json"
+	"github.com/jarcoal/httpmock"
+	"github.com/stretchr/testify/assert"
 	"net/http"
+	"github.com/mrapry/go-lib/golibshared"
 	"testing"
 	"time"
-
-	"github.com/jarcoal/httpmock"
-	"github.com/mrapry/go-lib/golibshared"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestNewRequest(t *testing.T) {

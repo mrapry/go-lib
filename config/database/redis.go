@@ -5,10 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"time"
 
 	"github.com/mrapry/go-lib/codebase/interfaces"
-	"github.com/mrapry/go-lib/golibhelper"
 	"github.com/mrapry/go-lib/logger"
 
 	"github.com/gomodule/redigo/redis"
@@ -27,14 +25,9 @@ func (m *redisInstance) WritePool() *redis.Pool {
 }
 
 func (m *redisInstance) Disconnect(ctx context.Context) (err error) {
-	fmt.Printf("%s redis: disconnect... ", time.Now().Format(golibhelper.TimeFormatLogger))
-	defer func() {
-		if err != nil {
-			fmt.Println("\x1b[31;1mERROR\x1b[0m")
-		} else {
-			fmt.Println("\x1b[32;1mSUCCESS\x1b[0m")
-		}
-	}()
+	deferFunc := logger.LogWithDefer("redis: disconnect...")
+	defer deferFunc()
+
 	if err := m.read.Close(); err != nil {
 		return err
 	}

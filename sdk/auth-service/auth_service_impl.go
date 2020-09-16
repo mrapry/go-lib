@@ -7,7 +7,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
+	"github.com/mitchellh/mapstructure"
 	"github.com/mrapry/go-lib/golibshared"
 	"github.com/mrapry/go-lib/golibutil"
 	"github.com/mrapry/go-lib/logger"
@@ -42,7 +43,7 @@ func (a *authServiceImpl) GenerateToken(ctx context.Context, payload GenerateTok
 
 		var (
 			response wrapper.HTTPResponse
-			url      = fmt.Sprintf("%s/api/auth/create-token", a.host)
+			url      = fmt.Sprintf("%s/v1/token/generate", a.host)
 		)
 
 		// set header
@@ -70,7 +71,10 @@ func (a *authServiceImpl) GenerateToken(ctx context.Context, payload GenerateTok
 			return
 		}
 
-		output <- golibshared.Result{Data: response}
+		dataToken := ResponseGenerate{}
+		mapstructure.Decode(response.Data, &dataToken)
+
+		output <- golibshared.Result{Data: dataToken}
 	})
 
 	return output
@@ -85,7 +89,7 @@ func (a *authServiceImpl) Validate(ctx context.Context, token string) <-chan gol
 
 		var (
 			response wrapper.HTTPResponse
-			url      = fmt.Sprintf("%s/api/auth/validate", a.host)
+			url      = fmt.Sprintf("%s/v1/token/validate", a.host)
 		)
 
 		// set header
@@ -108,6 +112,8 @@ func (a *authServiceImpl) Validate(ctx context.Context, token string) <-chan gol
 			return
 		}
 
+		response.Data = new(golibshared.TokenClaim)
+
 		// unmarshal to our target
 		err = json.Unmarshal(resp, &response)
 		if err != nil {
@@ -116,7 +122,7 @@ func (a *authServiceImpl) Validate(ctx context.Context, token string) <-chan gol
 			return
 		}
 
-		output <- golibshared.Result{Data: response}
+		output <- golibshared.Result{Data: response.Data}
 	})
 
 	return output

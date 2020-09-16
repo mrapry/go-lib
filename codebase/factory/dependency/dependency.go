@@ -8,29 +8,29 @@ import (
 // Dependency base
 type Dependency interface {
 	GetMiddleware() interfaces.Middleware
-	GetPostgresDatabase() interfaces.PostgreDatabase
 	GetBroker() interfaces.Broker
 	GetSQLDatabase() interfaces.SQLDatabase
 	GetMongoDatabase() interfaces.MongoDatabase
+	GetPostgreDatabase() interfaces.PostgreDatabase
 	GetRedisPool() interfaces.RedisPool
 	GetKey() interfaces.RSAKey
 	GetValidator() interfaces.Validator
-	GetSDK() *sdk.SDK
+	GetSDK() sdk.SDK
 }
 
 // Option func type
 type Option func(*deps)
 
 type deps struct {
-	mw         interfaces.Middleware
-	broker     interfaces.Broker
-	sqlDB      interfaces.SQLDatabase
-	postgresDB interfaces.PostgreDatabase
-	mongoDB    interfaces.MongoDatabase
-	redisPool  interfaces.RedisPool
-	key        interfaces.RSAKey
-	validator  interfaces.Validator
-	sdk        *sdk.SDK
+	mw        interfaces.Middleware
+	broker    interfaces.Broker
+	sqlDB     interfaces.SQLDatabase
+	mongoDB   interfaces.MongoDatabase
+	postgreDB interfaces.PostgreDatabase
+	redisPool interfaces.RedisPool
+	key       interfaces.RSAKey
+	validator interfaces.Validator
+	sdk       sdk.SDK
 }
 
 // SetMiddleware option func
@@ -54,17 +54,17 @@ func SetSQLDatabase(db interfaces.SQLDatabase) Option {
 	}
 }
 
-// SetPostgresDatabase option func
-func SetPostgresDatabase(db interfaces.PostgreDatabase) Option {
-	return func(d *deps) {
-		d.postgresDB = db
-	}
-}
-
 // SetMongoDatabase option func
 func SetMongoDatabase(db interfaces.MongoDatabase) Option {
 	return func(d *deps) {
 		d.mongoDB = db
+	}
+}
+
+// SetPostgreDatabase option func
+func SetPostgreDatabase(db interfaces.PostgreDatabase) Option {
+	return func(d *deps) {
+		d.postgreDB = db
 	}
 }
 
@@ -90,7 +90,7 @@ func SetValidator(validator interfaces.Validator) Option {
 }
 
 // SetSDK option func
-func SetSDK(sdk *sdk.SDK) Option {
+func SetSDK(sdk sdk.SDK) Option {
 	return func(d *deps) {
 		d.sdk = sdk
 	}
@@ -128,10 +128,9 @@ func (d *deps) GetKey() interfaces.RSAKey {
 func (d *deps) GetValidator() interfaces.Validator {
 	return d.validator
 }
-func (d *deps) GetSDK() *sdk.SDK {
+func (d *deps) GetSDK() sdk.SDK {
 	return d.sdk
 }
-func (d *deps) GetPostgresDatabase() interfaces.PostgreDatabase {
-	return d.postgresDB
+func (d *deps) GetPostgreDatabase() interfaces.PostgreDatabase {
+	return d.postgreDB
 }
-

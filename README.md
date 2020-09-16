@@ -1,9 +1,17 @@
 # go-lib
 
-Go libraries mrapry
+Go libraries using Golang Standart and Clean Architecture
 
 #### Install
+
+For first setup:
 ```shell
+$ go env -w GOPRIVATE="github.com/mrapry/go-lib"
+```
+
+Install dependency:
+```shell
+$ env GIT_TERMINAL_PROMPT=1 go get github.com/mrapry/go-lib  //or
 $ go get github.com/mrapry/go-lib
 ```
 
@@ -21,7 +29,7 @@ USE_GRAPHQL=[bool]
 USE_KAFKA_CONSUMER=[bool]
 USE_CRON_SCHEDULER=[bool]
 USE_REDIS_SUBSCRIBER=[bool]
-USE_AUTOMIGRATION_SQL=[bool]
+USE_SWAGGER=[bool]
 
 REST_HTTP_PORT=[int]
 GRAPHQL_HTTP_PORT=[int]
@@ -38,16 +46,12 @@ MONGODB_DATABASE_NAME=[string]
 # optional if using sql database
 SQL_DRIVER_NAME=[string]
 SQL_DB_READ_HOST=[string]
-SQL_DB_READ_PORT=[int]
 SQL_DB_READ_USER=[string]
 SQL_DB_READ_PASSWORD=[string]
 SQL_DB_WRITE_HOST=[string]
-SQL_DB_WRITE_PORT=[int]
 SQL_DB_WRITE_USER=[string]
 SQL_DB_WRITE_PASSWORD=[string]
 SQL_DATABASE_NAME=[string]
-SQL_SSL_MODE=[disable|enable]
-
 
 # optional if using redis
 REDIS_READ_HOST=[string]
@@ -64,4 +68,5 @@ KAFKA_CONSUMER_GROUP=[string]
 JAEGER_TRACING_HOST=[string]
 GRAPHQL_SCHEMA_DIR=[string]
 JSON_SCHEMA_DIR=[string]
+SWAGGER_ADDRESS_DOC=[string]
 ```

@@ -88,6 +88,7 @@ func (r *redisWorker) Serve() {
 					if r := recover(); r != nil {
 						tracer.SetError(ctx, fmt.Errorf("%v", r))
 					}
+					logger.LogGreen(tracer.GetTraceURL(ctx))
 				}()
 				tags["message"] = string(message)
 

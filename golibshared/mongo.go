@@ -45,7 +45,7 @@ func ToBSON(structure interface{}) bson.M {
 
 		// validate value
 		vField := v.Field(i)
-		if !reflect.DeepEqual(vField, reflect.Zero(reflect.TypeOf(vField.Interface()))) {
+		if !reflect.DeepEqual(vField.Interface(), reflect.Zero(vField.Type()).Interface()) {
 			bsonEncoding = append(bsonEncoding, bson.M{bsonName: vField.Interface()})
 		}
 	}

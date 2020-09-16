@@ -6,11 +6,11 @@ import (
 	"log"
 	"net"
 
+	"google.golang.org/grpc"
 	"github.com/mrapry/go-lib/codebase/factory"
 	"github.com/mrapry/go-lib/config"
 	"github.com/mrapry/go-lib/golibhelper"
 	"github.com/mrapry/go-lib/logger"
-	"google.golang.org/grpc"
 )
 
 type grpcServer struct {

@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,7 +17,7 @@ func TestSetEchoHTTPMock(t *testing.T) {
 }
 
 func TestCreateHttpRequestMock(t *testing.T) {
-	urlMock := "http://mrapry.test.com"
+	urlMock := "http://meeber.test.com"
 	responseMock := map[string]string{"success": "true"}
 
 	testCases := map[string]struct {

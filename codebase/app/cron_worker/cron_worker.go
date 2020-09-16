@@ -5,7 +5,6 @@ package cronworker
 import (
 	"context"
 	"fmt"
-	"log"
 	"reflect"
 	"sync"
 	"time"
@@ -18,14 +17,15 @@ import (
 )
 
 type cronWorker struct {
-	service   factory.ServiceFactory
-	isHaveJob bool
-	shutdown  chan struct{}
-	wg        sync.WaitGroup
+	service    factory.ServiceFactory
+	runningJob int
+	shutdown   chan struct{}
+	wg         sync.WaitGroup
 }
 
 // NewWorker create new cron worker
 func NewWorker(service factory.ServiceFactory) factory.AppServerFactory {
+	refreshWorkerNotif = make(chan struct{})
 	return &cronWorker{
 		service:  service,
 		shutdown: make(chan struct{}),
@@ -33,72 +33,64 @@ func NewWorker(service factory.ServiceFactory) factory.AppServerFactory {
 }
 
 func (c *cronWorker) Serve() {
-	var jobs []schedulerJob
-	var schedulerChannels []reflect.SelectCase
+
+	// add shutdown channel to first index
+	workers = append(workers, reflect.SelectCase{
+		Dir: reflect.SelectRecv, Chan: reflect.ValueOf(c.shutdown),
+	})
+	// add refresh worker channel to second index
+	workers = append(workers, reflect.SelectCase{
+		Dir: reflect.SelectRecv, Chan: reflect.ValueOf(refreshWorkerNotif),
+	})
+
 	for _, m := range c.service.GetModules() {
 		if h := m.WorkerHandler(types.Scheduler); h != nil {
 			for topic, handler := range h.MountHandlers() {
-				var job schedulerJob
 
 				funcName, interval := golibhelper.ParseCronJobKey(topic)
-				duration, err := time.ParseDuration(interval)
-				if err != nil {
-					durationParser, nextDuration, err := parseAtTime(interval)
-					if err != nil {
-						panic(err)
-					}
-					job.nextDuration = &nextDuration
-					duration = durationParser
+
+				var job Job
+				job.HandlerName = funcName
+				job.HandlerFunc = handler
+				job.Interval = interval
+				if err := AddJob(job); err != nil {
+					panic(err)
 				}
 
-				job.handlerName = funcName
-				job.ticker = time.NewTicker(duration)
-				job.handlerFunc = handler
-
-				schedulerChannels = append(schedulerChannels, reflect.SelectCase{
-					Dir: reflect.SelectRecv, Chan: reflect.ValueOf(job.ticker.C),
-				})
-				jobs = append(jobs, job)
-
-				fmt.Println(golibhelper.StringYellow(fmt.Sprintf(`[CRON-WORKER] job_name: "%s" -> every: %s`, funcName, interval)))
+				logger.LogYellow(fmt.Sprintf(`[CRON-WORKER] job_name: %s~%s -> every: %s`, m.Name(), funcName, interval))
 			}
 		}
 	}
 
-	if len(jobs) == 0 {
-		log.Println("cronjob: no scheduler handler found")
-		return
-	}
-
-	c.isHaveJob = true
-
-	// add shutdown channel to last index
-	schedulerChannels = append(schedulerChannels, reflect.SelectCase{
-		Dir: reflect.SelectRecv, Chan: reflect.ValueOf(c.shutdown),
-	})
-
-	fmt.Printf("\x1b[34;1m⇨ Cron worker running with %d jobs\x1b[0m\n\n", len(jobs))
+	fmt.Printf("\x1b[34;1m⇨ Cron worker running with %d jobs\x1b[0m\n\n", len(activeJobs))
 	for {
-		chosen, _, ok := reflect.Select(schedulerChannels)
+		chosen, _, ok := reflect.Select(workers)
 		if !ok {
 			continue
 		}
 
 		// if shutdown channel captured, break loop (no more jobs will run)
-		if chosen == len(schedulerChannels)-1 {
+		if chosen == 0 {
 			break
 		}
 
-		job := jobs[chosen]
+		// notify for refresh worker
+		if chosen == 1 {
+			continue
+		}
+
+		chosen = chosen - 2
+		job := activeJobs[chosen]
 		if job.nextDuration != nil {
 			job.ticker.Stop()
 			job.ticker = time.NewTicker(*job.nextDuration)
-			schedulerChannels[chosen].Chan = reflect.ValueOf(job.ticker.C)
-			jobs[chosen].nextDuration = nil
+			workers[job.WorkerIndex].Chan = reflect.ValueOf(job.ticker.C)
+			activeJobs[chosen].nextDuration = nil
 		}
 
 		c.wg.Add(1)
-		go func(job schedulerJob) {
+		c.runningJob++
+		go func(job *Job) {
 			defer c.wg.Done()
 
 			trace := tracer.StartTrace(context.Background(), "CronScheduler")
@@ -109,11 +101,13 @@ func (c *cronWorker) Serve() {
 				if r := recover(); r != nil {
 					trace.SetError(fmt.Errorf("%v", r))
 				}
+				c.runningJob--
+				logger.LogGreen(tracer.GetTraceURL(ctx))
 			}()
 
 			tags := trace.Tags()
-			tags["jobName"] = job.handlerName
-			if err := job.handlerFunc(ctx, []byte(job.params)); err != nil {
+			tags["jobName"] = job.HandlerName
+			if err := job.HandlerFunc(ctx, []byte(job.Params)); err != nil {
 				panic(err)
 			}
 		}(job)
@@ -125,7 +119,7 @@ func (c *cronWorker) Shutdown(ctx context.Context) {
 	deferFunc := logger.LogWithDefer("Stopping cron job scheduler worker...")
 	defer deferFunc()
 
-	if !c.isHaveJob {
+	if len(activeJobs) == 0 {
 		return
 	}
 
@@ -133,6 +127,9 @@ func (c *cronWorker) Shutdown(ctx context.Context) {
 
 	done := make(chan struct{})
 	go func() {
+		if c.runningJob != 0 {
+			fmt.Printf("\ncronjob: waiting %d job... ", c.runningJob)
+		}
 		c.wg.Wait()
 		done <- struct{}{}
 	}()
@@ -143,12 +140,4 @@ func (c *cronWorker) Shutdown(ctx context.Context) {
 	case <-done:
 		fmt.Print("cronjob: success waiting all job until done ")
 	}
-}
-
-type schedulerJob struct {
-	ticker       *time.Ticker
-	nextDuration *time.Duration
-	handlerName  string
-	handlerFunc  types.WorkerHandlerFunc
-	params       string
 }
