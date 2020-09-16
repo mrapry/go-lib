@@ -68,10 +68,10 @@ type Env struct {
 	}
 }
 
-func loadBaseEnv(targetEnv *Env) {
+func loadBaseEnv(serviceLocation string, targetEnv *Env) {
 
 	// load main .env and additional .env in app
-	if err := godotenv.Load(".env"); err != nil {
+	if err := godotenv.Load(serviceLocation + ".env"); err != nil {
 		panic(fmt.Errorf("Load env: %v", err))
 	}
 

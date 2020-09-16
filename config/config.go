@@ -22,8 +22,8 @@ type Config struct {
 }
 
 // Init app config
-func Init() *Config {
-	loadBaseEnv(&env)
+func Init(rootApp string) *Config {
+	loadBaseEnv(rootApp, &env)
 	return &Config{}
 }
 
