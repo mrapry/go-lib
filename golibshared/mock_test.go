@@ -17,7 +17,7 @@ func TestSetEchoHTTPMock(t *testing.T) {
 }
 
 func TestCreateHttpRequestMock(t *testing.T) {
-	urlMock := "http://meeber.test.com"
+	urlMock := "http://mrapry.test.com"
 	responseMock := map[string]string{"success": "true"}
 
 	testCases := map[string]struct {
