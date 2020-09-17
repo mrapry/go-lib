@@ -8,12 +8,14 @@ import (
 
 	"github.com/mrapry/go-lib/codebase/interfaces"
 	"github.com/mrapry/go-lib/logger"
+	"github.com/mrapry/go-lib/store"
 
 	"github.com/gomodule/redigo/redis"
 )
 
 type redisInstance struct {
 	read, write *redis.Pool
+	store       interfaces.Store
 }
 
 func (m *redisInstance) ReadPool() *redis.Pool {
@@ -22,6 +24,10 @@ func (m *redisInstance) ReadPool() *redis.Pool {
 
 func (m *redisInstance) WritePool() *redis.Pool {
 	return m.write
+}
+
+func (m *redisInstance) Store() interfaces.Store {
+	return m.store
 }
 
 func (m *redisInstance) Disconnect(ctx context.Context) (err error) {
@@ -71,6 +77,8 @@ func InitRedis() interfaces.RedisPool {
 	if err != nil {
 		panic("redis write: " + err.Error())
 	}
+
+	inst.store = store.NewRedisStore(inst.read, inst.write)
 
 	return inst
 }

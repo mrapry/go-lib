@@ -2,6 +2,7 @@ package interfaces
 
 import (
 	"database/sql"
+
 	"github.com/jinzhu/gorm"
 
 	"github.com/gomodule/redigo/redis"
@@ -33,5 +34,6 @@ type PostgreDatabase interface {
 type RedisPool interface {
 	ReadPool() *redis.Pool
 	WritePool() *redis.Pool
+	Store() Store
 	Closer
 }
