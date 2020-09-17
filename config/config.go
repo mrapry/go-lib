@@ -32,6 +32,11 @@ func BaseEnv() Env {
 	return env
 }
 
+// SetEnv set env for mocking data env
+func SetEnv(newEnv Env) {
+	env = newEnv
+}
+
 // LoadFunc load selected dependency with context timeout
 func (c *Config) LoadFunc(depsFunc func(context.Context) []interfaces.Closer) {
 	// set timeout for init configuration

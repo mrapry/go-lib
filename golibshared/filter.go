@@ -13,7 +13,7 @@ import (
 const (
 	SortDesc       = "desc"
 	SortAsc        = "asc"
-	DefaultOrderBy = "created_at"
+	DefaultOrderBy = "createdAt"
 )
 
 // Filter basic filter model
@@ -22,10 +22,10 @@ type Filter struct {
 	Page    int32  `json:"page" default:"1"`
 	Offset  int32  `json:"-"`
 	Search  string `json:"search,omitempty"`
-	OrderBy string `json:"order_by,omitempty"`
+	OrderBy string `json:"orderBy,omitempty"`
 	Sort    string `json:"sort,omitempty" default:"desc" lower:"true"`
 	SortInt int    `json:"-"`
-	ShowAll bool   `json:"show_all" default:"false"`
+	ShowAll bool   `json:"showAll" default:"false"`
 }
 
 // SetSort method

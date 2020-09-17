@@ -18,9 +18,9 @@ type SliceResult struct {
 type Meta struct {
 	Page         int64  `json:"page"`
 	Limit        int64  `json:"limit"`
-	TotalRecords int64  `json:"total_records"`
-	TotalPages   int64  `json:"total_pages"`
-	OrderBy      string `json:"order_by,omitempty"`
+	TotalRecords int64  `json:"totalRecords"`
+	TotalPages   int64  `json:"totalPages"`
+	OrderBy      string `json:"orderBy,omitempty"`
 }
 
 // NewMeta create new meta for slice data
@@ -47,6 +47,6 @@ func (m *Meta) ToResolver() *MetaResolver {
 type MetaResolver struct {
 	Page         int32 `json:"page"`
 	Limit        int32 `json:"limit"`
-	TotalRecords int32 `json:"total_records"`
-	TotalPages   int32 `json:"total_pages"`
+	TotalRecords int32 `json:"totalRecords"`
+	TotalPages   int32 `json:"totalPages"`
 }
